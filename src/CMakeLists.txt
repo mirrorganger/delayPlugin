@@ -13,7 +13,7 @@ juce_add_plugin("${BaseTargetName}"
         COPY_PLUGIN_AFTER_BUILD TRUE
         PLUGIN_MANUFACTURER_CODE ADex
         PLUGIN_CODE BMfx
-        FORMATS AU VST3
+        FORMATS VST3
 	PRODUCT_NAME "Delay")
 
 juce_generate_juce_header(${BaseTargetName})
@@ -28,4 +28,4 @@ target_compile_definitions(${BaseTargetName} PUBLIC
         JUCE_VST3_CAN_REPLACE_VST2=0
         JucePlugin_PreferredChannelConfigurations={2,2},{2,2})
 
-target_link_libraries(${BaseTargetName} PRIVATE juce::juce_audio_utils dsp)
+target_link_libraries(${BaseTargetName} PRIVATE juce::juce_audio_utils)
