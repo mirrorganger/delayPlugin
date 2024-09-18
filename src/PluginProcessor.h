@@ -47,8 +47,9 @@ public:
 
 private:
     Apvts::ParameterLayout createParameterLayout();
+    const juce::ParameterID _gainParamId {"gain", 1};
     Apvts _vts{*this,nullptr, "DealayParameters", createParameterLayout()};
-   
+    juce::AudioParameterFloat* _gainParam;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DelayPluginProcessor)
 };

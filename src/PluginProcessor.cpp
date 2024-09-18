@@ -6,14 +6,11 @@ namespace delay_plugin
 
 DelayPluginProcessor::DelayPluginProcessor()
      : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
                        )
 {
+    _gainParam = dynamic_cast<juce::AudioParameterFloat*>(_vts.getParameter(_gainParamId.getParamID()));
 }
 
 DelayPluginProcessor::~DelayPluginProcessor()
@@ -135,13 +132,14 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    buffer.applyGain (0.1F);
-
-    // for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    // {
-    //     auto* channelData = buffer.getWritePointer (channel);
-    //     juce::ignoreUnused (channelData);
-    // }
+    float gain  = juce::Decibels::decibelsToGain (_gainParam->get());
+    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    {
+        auto* channelData = buffer.getWritePointer (channel);
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample){
+            channelData[sample] *= gain;
+        }
+    }
 }
 
 //==============================================================================
@@ -175,13 +173,14 @@ Apvts::ParameterLayout DelayPluginProcessor::createParameterLayout()
 {
     Apvts::ParameterLayout layout;
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID{"gain",1},
+        _gainParamId,
         "Output Gain",
         juce::NormalisableRange<float>{-12.0f, 12.0f},
         0.0f
     ));
-
     return layout;
+}
+
 }
 
 //==============================================================================
