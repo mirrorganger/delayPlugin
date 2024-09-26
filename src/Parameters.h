@@ -36,14 +36,12 @@ namespace delay_plugin
 
     class DelayParameters
     {
-
-        DelayParameters::DelayParameters(Vts &state)
+        DelayParameters(Vts &state)
         {
             _gain.getFromTree(state);
         }
 
         Vts::ParameterLayout createParameterLayout(){
-            
             Vts::ParameterLayout layout;
             layout.add(std::make_unique<juce::AudioParameterFloat>(
                 gainParamID,
@@ -53,8 +51,6 @@ namespace delay_plugin
             ));
             return layout;
         }
-
-
     private:
         AudioParameter<float> _gain;
     };

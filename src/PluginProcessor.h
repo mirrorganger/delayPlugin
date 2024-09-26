@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "Parameters.h"
 
 using Apvts = juce::AudioProcessorValueTreeState;
 
@@ -50,6 +51,8 @@ private:
     const juce::ParameterID _gainParamId {"gain", 1};
     Apvts _vts{*this,nullptr, "DealayParameters", createParameterLayout()};
     juce::AudioParameterFloat* _gainParam;
+    DelayParameters _parameters;
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DelayPluginProcessor)
 };

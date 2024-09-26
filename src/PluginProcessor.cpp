@@ -8,9 +8,9 @@ DelayPluginProcessor::DelayPluginProcessor()
      : AudioProcessor (BusesProperties()
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                       )
+                       ),
+    _parameters(_vts)
 {
-    _gainParam = dynamic_cast<juce::AudioParameterFloat*>(_vts.getParameter(_gainParamId.getParamID()));
 }
 
 DelayPluginProcessor::~DelayPluginProcessor()
