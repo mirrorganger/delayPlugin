@@ -85,9 +85,9 @@ void DelayPluginProcessor::changeProgramName (int index, const juce::String& new
 //==============================================================================
 void DelayPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
-    juce::ignoreUnused (sampleRate, samplesPerBlock);
+    juce::ignoreUnused (samplesPerBlock);
+    _parameters.prepareToPlay(sampleRate);
+    _parameters.reset();
 }
 
 void DelayPluginProcessor::releaseResources()
@@ -132,9 +132,11 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    float gain  = juce::Decibels::decibelsToGain (_gainParam->get());
+    _parameters.update();
+
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
+        auto gain = _parameters.gain();
         auto* channelData = buffer.getWritePointer (channel);
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample){
             channelData[sample] *= gain;
@@ -170,14 +172,7 @@ void DelayPluginProcessor::setStateInformation (const void* data, int sizeInByte
 
 Apvts::ParameterLayout DelayPluginProcessor::createParameterLayout()
 {
-    Apvts::ParameterLayout layout;
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        _gainParamId,
-        "Output Gain",
-        juce::NormalisableRange<float>{-12.0f, 12.0f},
-        0.0f
-    ));
-    return layout;
+    return _parameters.createParameterLayout();
 }
 
 }
