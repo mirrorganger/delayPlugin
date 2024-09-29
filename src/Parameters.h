@@ -92,6 +92,22 @@ namespace delay_plugin
         const millis_t _tau {.2f};
     };
 
+    static juce::String stringFromDb(float db, int){
+        return juce::String(db,1) + " dB";
+    }
+
+    static juce::String stringFromPercent(float percent, int){
+        return juce::String(static_cast<int>(percent)) +  " %";
+    }
+
+    static juce::String stringFromTime(float ms, int){
+        if(ms < 1000.0f){
+            return juce::String(ms, 2) + " ms";
+        }else{
+           return juce::String(ms  * 0.001f,2) + " s";
+        }
+    }
+
     class DelayParameters
     {
     public:    
@@ -109,17 +125,21 @@ namespace delay_plugin
                 gainParamID,
                 "Output Gain",
                 juce::NormalisableRange<float>{-60.0f, 12.0f},
-                0.0f),
+                0.0f,
+                juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromDb)
+                ),
                 std::make_unique<juce::AudioParameterFloat>(
                 delayParamID,
                 "Delay",
                 juce::NormalisableRange<float>{MIN_DELAY_TIME.count(),MAX_DELAY_TIME.count(),0.001f,0.25f},
-                100.0f),
+                100.0f,
+                juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromTime)),
                 std::make_unique<juce::AudioParameterFloat>(
                 mixParamID,
                 "mix",
                 juce::NormalisableRange<float>{0.0f,100.0f,1.0f},
-                100.0f)
+                100.0f,
+                juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromPercent))
                 );
             return layout;
         }
