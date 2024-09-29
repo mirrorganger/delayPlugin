@@ -88,6 +88,9 @@ void DelayPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     juce::ignoreUnused (samplesPerBlock);
     _parameters.prepareToPlay(sampleRate);
     _parameters.reset();
+    _delayLine.prepare({sampleRate,juce::uint32(samplesPerBlock),2});
+    _delayLine.setMaximumDelayInSamples(static_cast<int>(std::ceil(seconds_t(MAX_DELAY_TIME).count() * sampleRate)));
+    _delayLine.reset();
 }
 
 void DelayPluginProcessor::releaseResources()
@@ -134,14 +137,28 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     _parameters.update();
 
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto gain = _parameters.gain();
-        auto* channelData = buffer.getWritePointer (channel);
+    auto dataR = buffer.getWritePointer(0);
+    auto dataL = buffer.getWritePointer(1);
+    const auto sampleRate = static_cast<float>(getSampleRate());
+
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample){
-            channelData[sample] *= gain;
+            auto delayInSamples = (_parameters.delay() / 1000.0f) * sampleRate; 
+            _delayLine.setDelay(delayInSamples);  
+            
+            auto dryR = dataR[sample];
+            auto dryL = dataL[sample];
+            
+            _delayLine.pushSample(0, dryL);
+            _delayLine.pushSample(1, dryL);
+            
+            auto wetR = _delayLine.popSample(0);
+            auto wetL = _delayLine.popSample(1);
+            
+            auto gain = _parameters.gain();
+            auto mix = _parameters.mix();
+            dataR[sample] = (dryR + wetR * _parameters.mix()) * gain;
+            dataL[sample] = (dryL + wetL * _parameters.mix()) * gain;
         }
-    }
 }
 
 //==============================================================================

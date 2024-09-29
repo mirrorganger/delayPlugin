@@ -28,4 +28,4 @@ target_compile_definitions(${BaseTargetName} PUBLIC
         JUCE_VST3_CAN_REPLACE_VST2=0
         JucePlugin_PreferredChannelConfigurations={2,2},{2,2})
 
-target_link_libraries(${BaseTargetName} PRIVATE juce::juce_audio_utils)
+target_link_libraries(${BaseTargetName} PRIVATE juce::juce_audio_utils juce::juce_dsp)

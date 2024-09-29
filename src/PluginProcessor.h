@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_dsp/juce_dsp.h>
 #include "Parameters.h"
 
 using Apvts = juce::AudioProcessorValueTreeState;
@@ -50,6 +51,7 @@ private:
     Apvts::ParameterLayout createParameterLayout();
     Apvts _vts{*this,nullptr, "DealayParameters", createParameterLayout()};
     DelayParameters _parameters;
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> _delayLine;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DelayPluginProcessor)
 };
