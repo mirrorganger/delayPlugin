@@ -4,8 +4,6 @@
 #include <juce_dsp/juce_dsp.h>
 #include "Parameters.h"
 
-using Apvts = juce::AudioProcessorValueTreeState;
-
 namespace delay_plugin
 {
 class DelayPluginProcessor final : public juce::AudioProcessor
@@ -47,9 +45,11 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    Vts& getVts();
+
 private:
-    Apvts::ParameterLayout createParameterLayout();
-    Apvts _vts{*this,nullptr, "DealayParameters", createParameterLayout()};
+    Vts::ParameterLayout createParameterLayout();
+    Vts _vts{*this,nullptr, "DealayParameters", createParameterLayout()};
     DelayParameters _parameters;
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> _delayLine;
     //==============================================================================

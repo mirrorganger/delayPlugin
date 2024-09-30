@@ -5,30 +5,27 @@ namespace delay_plugin
 
 DelayPluginEditor::DelayPluginEditor(
     DelayPluginProcessor& p)
-    : AudioProcessorEditor(&p), processorRef(p) {
-  juce::ignoreUnused(processorRef);
-  // Make sure that before the constructor has finished, you've set the
-  // editor's size to whatever you need it to be.
-  setSize(400, 300);
+    : AudioProcessorEditor(&p), _processorRef(p) {
+  juce::ignoreUnused(_processorRef);
+  _slider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+  _slider.setTextBoxStyle(juce::Slider::TextBoxBelow,false, 70,16);
+  _slider.setBounds(0,0,70,86);
+  _label.setText("Gain",juce::NotificationType::dontSendNotification);
+  _label.setJustificationType(juce::Justification::horizontallyCentred);
+  _label.setBorderSize(juce::BorderSize<int>(0,0,2,0));
+  _label.attachToComponent(&_slider,false);
+  addAndMakeVisible(_slider);
+  setSize(500, 330);
 }
 
 DelayPluginEditor::~DelayPluginEditor() {}
 
 void DelayPluginEditor::paint(juce::Graphics& g) {
-  // (Our component is opaque, so we must completely fill the background with a
-  // solid colour)
-  g.fillAll(
-      getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
-
-  g.setColour(juce::Colours::white);
-  g.setFont(15.0f);
-  g.drawFittedText("Hello World!", getLocalBounds(),
-                   juce::Justification::centred, 1);
+  g.fillAll(juce::Colours::darkgrey);
 }
 
 void DelayPluginEditor::resized() {
-  // This is generally where you'll want to lay out the positions of any
-  // subcomponents in your editor..
+  _slider.setTopLeftPosition(215,125);
 }
 
 }

@@ -187,9 +187,13 @@ void DelayPluginProcessor::setStateInformation (const void* data, int sizeInByte
     }
 }
 
-Apvts::ParameterLayout DelayPluginProcessor::createParameterLayout()
+Vts::ParameterLayout DelayPluginProcessor::createParameterLayout()
 {
     return _parameters.createParameterLayout();
+}
+
+Vts& DelayPluginProcessor::getVts(){
+    return _vts;
 }
 
 }
