@@ -13,14 +13,15 @@ juce_add_plugin("${BaseTargetName}"
         COPY_PLUGIN_AFTER_BUILD TRUE
         PLUGIN_MANUFACTURER_CODE ADex
         PLUGIN_CODE BMfx
-        FORMATS VST3
+        FORMATS VST3 Standalone
 	PRODUCT_NAME "Delay")
 
 juce_generate_juce_header(${BaseTargetName})
 
 target_sources(${BaseTargetName} PRIVATE
-		PluginProcessor.cpp
-        PluginEditor.cpp)
+                RotaryKnob.cpp
+                PluginProcessor.cpp
+                PluginEditor.cpp)
 
 target_compile_definitions(${BaseTargetName} PUBLIC
         JUCE_WEB_BROWSER=0
