@@ -3,29 +3,54 @@
 namespace delay_plugin
 {
 
-DelayPluginEditor::DelayPluginEditor(
-    DelayPluginProcessor& p)
-    : AudioProcessorEditor(&p), _processorRef(p) {
-  juce::ignoreUnused(_processorRef);
-  _slider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-  _slider.setTextBoxStyle(juce::Slider::TextBoxBelow,false, 70,16);
-  _slider.setBounds(0,0,70,86);
-  _label.setText("Gain",juce::NotificationType::dontSendNotification);
-  _label.setJustificationType(juce::Justification::horizontallyCentred);
-  _label.setBorderSize(juce::BorderSize<int>(0,0,2,0));
-  _label.attachToComponent(&_slider,false);
-  addAndMakeVisible(_slider);
-  setSize(500, 330);
-}
+  DelayPluginEditor::DelayPluginEditor(
+      DelayPluginProcessor &p)
+      : AudioProcessorEditor(&p), _processorRef(p)
+  {
+    juce::ignoreUnused(_processorRef);
+    
+    _delayGroup.setText("Delay");
+    _delayGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
+    _delayGroup.addAndMakeVisible(_delayKnob);
+    addAndMakeVisible(_delayGroup);
 
-DelayPluginEditor::~DelayPluginEditor() {}
+    _feedbackGroup.setText("Feeback");
+    _feedbackGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
+    addAndMakeVisible(_feedbackGroup);
 
-void DelayPluginEditor::paint(juce::Graphics& g) {
-  g.fillAll(juce::Colours::darkgrey);
-}
+    _outputGroup.setText("Output");
+    _outputGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
+    _outputGroup.addAndMakeVisible(_mixKnob);
+    _outputGroup.addAndMakeVisible(_gainKnob);
+    addAndMakeVisible(_outputGroup);
 
-void DelayPluginEditor::resized() {
-  _slider.setTopLeftPosition(215,125);
-}
+    setSize(500, 330);
+  }
+
+  DelayPluginEditor::~DelayPluginEditor() {}
+
+  void DelayPluginEditor::paint(juce::Graphics &g)
+  {
+    g.fillAll(juce::Colours::darkgrey);
+  }
+
+  void DelayPluginEditor::resized()
+  {
+    auto bounds = getLocalBounds();
+
+    auto y = 10;
+    auto fullHeight = bounds.getHeight() - 20;
+
+    // Position the groups
+    _delayGroup.setBounds(10, y, 110, fullHeight);
+    _outputGroup.setBounds(bounds.getWidth() - 160, y, 150, fullHeight);
+    _feedbackGroup.setBounds(_delayGroup.getRight() + 10, y,
+                             _outputGroup.getX() - _delayGroup.getRight() - 20,
+                             fullHeight);
+
+    _delayKnob.setTopLeftPosition(20, 20);
+    _gainKnob.setTopLeftPosition(20, 20);
+    _mixKnob.setTopLeftPosition(_gainKnob.getX(), _gainKnob.getBottom() + 10);
+  }
 
 }

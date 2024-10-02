@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PluginProcessor.h"
+#include "RotaryKnob.h"
 
 namespace delay_plugin
 {
@@ -18,9 +19,13 @@ private:
   // This reference is provided as a quick way for your editor to
   // access the processor object that created it.
   DelayPluginProcessor& _processorRef;
-  juce::Slider _slider;
-  juce::Label _label;
-  Vts::SliderAttachment _attachment {_processorRef.getVts(),gainParamID.getParamID(),_slider};
+  RotaryKnob _gainKnob{"Gain",_processorRef.getVts(),gainParamID,{70,110}};  
+  RotaryKnob _mixKnob{"Mix",_processorRef.getVts(),mixParamID,{70,110}};  
+  RotaryKnob _delayKnob{"Delay",_processorRef.getVts(),delayParamID,{70,110}};  
+  juce::GroupComponent _delayGroup;
+  juce::GroupComponent _feedbackGroup;
+  juce::GroupComponent _outputGroup;
+
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DelayPluginEditor)    
 
 }; 
