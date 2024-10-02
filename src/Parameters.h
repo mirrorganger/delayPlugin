@@ -16,6 +16,7 @@ namespace delay_plugin
     static const juce::ParameterID gainParamID { "gain", 1 };
     static const juce::ParameterID delayParamID { "delay", 1 };
     static const juce::ParameterID mixParamID {"mix", 1};
+    static const juce::ParameterID feedbackParamID {"feedback", 1};
 
     static constexpr millis_t MIN_DELAY_TIME { 5.0};
     static constexpr millis_t MAX_DELAY_TIME {5000.0};
@@ -115,6 +116,7 @@ namespace delay_plugin
         {
             _gain.getFromTree(state);
             _mix.getFromTree(state);
+            _feedback.getFromTree(state);
             _delayParam = dynamic_cast<juce::AudioParameterFloat*>(state.getParameter(delayParamID.getParamID()));
         }
 
@@ -139,6 +141,12 @@ namespace delay_plugin
                 "mix",
                 juce::NormalisableRange<float>{0.0f,100.0f,1.0f},
                 100.0f,
+                juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromPercent)),
+                std::make_unique<juce::AudioParameterFloat>(
+                feedbackParamID,
+                "feedback",
+                juce::NormalisableRange<float>{-100.0f,100.0f,1.0f},
+                0.0f,
                 juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromPercent))
                 );
             return layout;
@@ -146,16 +154,19 @@ namespace delay_plugin
         
         void prepareToPlay(double sampleRate){ 
             _gain.smooth.reset(sampleRate, updatePeriod.count());
+            _feedback.smooth.reset(sampleRate, updatePeriod.count());
             _delay.prepare(sampleRate);
         }
 
         void update() noexcept{
             _gain.smooth.setTargetValue(juce::Decibels::decibelsToGain(_gain.param->get()));
             _mix.smooth.setTargetValue(_mix.param->get() * 0.01f);
+            _feedback.smooth.setTargetValue(_feedback.param->get() * 0.01f);
             _delay.update(_delayParam->get());
         }
         void reset() noexcept{
             _gain.smooth.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(_gain.param->get()));
+            _feedback.smooth.setCurrentAndTargetValue(_feedback.param->get());
             _delay.reset();
         }
 
@@ -171,9 +182,14 @@ namespace delay_plugin
             return _mix.smooth.getNextValue();
         }
 
+        float feeback(){
+            return _feedback.smooth.getNextValue();
+        }
+
     private:
         SmoothParam<float> _gain{gainParamID};    
         SmoothParam<float> _mix{mixParamID};
+        SmoothParam<float> _feedback{feedbackParamID};
         juce::AudioParameterFloat* _delayParam;
         ExpParam _delay;
         seconds_t updatePeriod {0.2};

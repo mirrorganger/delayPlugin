@@ -91,6 +91,8 @@ void DelayPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     _delayLine.prepare({sampleRate,juce::uint32(samplesPerBlock),2});
     _delayLine.setMaximumDelayInSamples(static_cast<int>(std::ceil(seconds_t(MAX_DELAY_TIME).count() * sampleRate)));
     _delayLine.reset();
+    _feedbackL = 0.0f;
+    _feedbackR = 0.0f;
 }
 
 void DelayPluginProcessor::releaseResources()
@@ -148,12 +150,15 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             auto dryR = dataR[sample];
             auto dryL = dataL[sample];
             
-            _delayLine.pushSample(0, dryL);
-            _delayLine.pushSample(1, dryL);
-            
+            _delayLine.pushSample(0, dryR + _feedbackR);
+            _delayLine.pushSample(1, dryL + _feedbackL) ;
+
             auto wetR = _delayLine.popSample(0);
             auto wetL = _delayLine.popSample(1);
             
+            _feedbackR = wetR * _parameters.feeback();
+            _feedbackL = wetL * _parameters.feeback();
+
             auto gain = _parameters.gain();
             auto mix = _parameters.mix();
             dataR[sample] = (dryR + wetR * _parameters.mix()) * gain;
