@@ -3,3 +3,4 @@ ReaperDelayProject
 DelayProject
 .idea
 .vscode
+cmake-build-*
