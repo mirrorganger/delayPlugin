@@ -17,6 +17,7 @@ namespace delay_plugin
     _feedbackGroup.setText("Feeback");
     _feedbackGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
     _feedbackGroup.addAndMakeVisible(_feedbackKnob);
+    _feedbackGroup.addAndMakeVisible(_stereoKnob);
     addAndMakeVisible(_feedbackGroup);
 
     _outputGroup.setText("Output");
@@ -51,6 +52,7 @@ namespace delay_plugin
 
     _delayKnob.setTopLeftPosition(20, 20);
     _feedbackKnob.setTopLeftPosition(20, 20);
+    _stereoKnob.setTopLeftPosition(_feedbackKnob.getRight()+20,20);
     _gainKnob.setTopLeftPosition(20, 20);
     _mixKnob.setTopLeftPosition(_gainKnob.getX(), _gainKnob.getBottom() + 10);
 

@@ -23,6 +23,7 @@ private:
   RotaryKnob _mixKnob{"Mix",_processorRef.getVts(),mixParamID,{70,110}};  
   RotaryKnob _delayKnob{"Delay",_processorRef.getVts(),delayParamID,{70,110}};  
   RotaryKnob _feedbackKnob{"Feedback",_processorRef.getVts(),feedbackParamID,{70,110}};  
+  RotaryKnob _stereoKnob{"Stereo",_processorRef.getVts(),stereoParamID,{70,110}};  
   juce::GroupComponent _delayGroup;
   juce::GroupComponent _feedbackGroup;
   juce::GroupComponent _outputGroup;

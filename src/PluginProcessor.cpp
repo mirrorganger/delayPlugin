@@ -139,8 +139,8 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     _parameters.update();
 
-    auto dataR = buffer.getWritePointer(0);
-    auto dataL = buffer.getWritePointer(1);
+    auto dataL = buffer.getWritePointer(0);
+    auto dataR = buffer.getWritePointer(1);
     const auto sampleRate = static_cast<float>(getSampleRate());
 
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample){
@@ -150,8 +150,12 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             auto dryR = dataR[sample];
             auto dryL = dataL[sample];
             
-            _delayLine.pushSample(0, dryR + _feedbackR);
-            _delayLine.pushSample(1, dryL + _feedbackL) ;
+            auto mono = (dryL + dryR)* .5f;    
+
+            const auto [panL, panR] = _parameters.pan();
+
+            _delayLine.pushSample(0, mono * panL + _feedbackR);
+            _delayLine.pushSample(1, mono * panR + _feedbackL) ;
 
             auto wetR = _delayLine.popSample(0);
             auto wetL = _delayLine.popSample(1);
@@ -161,6 +165,7 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
             auto gain = _parameters.gain();
             auto mix = _parameters.mix();
+            
             dataR[sample] = (dryR + wetR * _parameters.mix()) * gain;
             dataL[sample] = (dryL + wetL * _parameters.mix()) * gain;
         }

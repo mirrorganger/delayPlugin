@@ -3,6 +3,8 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <chrono>
 
+#include "Dsp.h"
+
 using namespace std::chrono_literals;
 
 namespace delay_plugin
@@ -17,6 +19,7 @@ namespace delay_plugin
     static const juce::ParameterID delayParamID { "delay", 1 };
     static const juce::ParameterID mixParamID {"mix", 1};
     static const juce::ParameterID feedbackParamID {"feedback", 1};
+    static const juce::ParameterID stereoParamID {"stereo", 1};
 
     static constexpr millis_t MIN_DELAY_TIME { 5.0};
     static constexpr millis_t MAX_DELAY_TIME {5000.0};
@@ -48,8 +51,6 @@ namespace delay_plugin
         Vts::ParameterLayout& _layout; 
     };
 
-
-
     template<typename Base>
     struct SmoothParam{
         using ParamaType = get_param_type_v<Base>;
@@ -62,35 +63,6 @@ namespace delay_plugin
         void getFromTree(Vts& vt){
             param = dynamic_cast<ParamaType*>(vt.getParameter(id.getParamID()));
         }
-    };
-
-    struct ExpParam{
-
-        void reset(){
-            _current = 0.0f;
-        }
-
-        void prepare(float sampleRate){
-            _coeff = 1.0f - std::exp(-1.0f / (_tau.count() * sampleRate));
-        }
-
-        void update(float newValue){
-            _target = newValue;
-            if(_current == 0.0f){
-                _current = _target;
-            }
-        }
-
-        float advance(){
-            _current  += (_target - _current) * _coeff;
-            return _current;
-        }
-
-    private:
-        float _target;
-        float _current;
-        float _coeff;
-        const millis_t _tau {.2f};
     };
 
     static juce::String stringFromDb(float db, int){
@@ -112,12 +84,14 @@ namespace delay_plugin
     class DelayParameters
     {
     public:    
+
         DelayParameters(Vts &state)
         {
             _gain.getFromTree(state);
             _mix.getFromTree(state);
             _feedback.getFromTree(state);
-            _delayParam = dynamic_cast<juce::AudioParameterFloat*>(state.getParameter(delayParamID.getParamID()));
+            _stereo.getFromTree(state);
+            _delay.getFromTree(state);
         }
 
         Vts::ParameterLayout createParameterLayout(){
@@ -147,6 +121,12 @@ namespace delay_plugin
                 "feedback",
                 juce::NormalisableRange<float>{-100.0f,100.0f,1.0f},
                 0.0f,
+                juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromPercent)),
+                std::make_unique<juce::AudioParameterFloat>(
+                stereoParamID,
+                "stereo",
+                juce::NormalisableRange<float>{-100.0f,100.0f,1.0f},
+                0.0f,
                 juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromPercent))
                 );
             return layout;
@@ -155,19 +135,23 @@ namespace delay_plugin
         void prepareToPlay(double sampleRate){ 
             _gain.smooth.reset(sampleRate, updatePeriod.count());
             _feedback.smooth.reset(sampleRate, updatePeriod.count());
-            _delay.prepare(sampleRate);
+            _mix.smooth.reset(sampleRate, updatePeriod.count());
+            _stereo.smooth.reset(sampleRate, updatePeriod.count());
+            _delay.smooth.reset(sampleRate,updatePeriod.count());
         }
 
         void update() noexcept{
             _gain.smooth.setTargetValue(juce::Decibels::decibelsToGain(_gain.param->get()));
             _mix.smooth.setTargetValue(_mix.param->get() * 0.01f);
             _feedback.smooth.setTargetValue(_feedback.param->get() * 0.01f);
-            _delay.update(_delayParam->get());
+            _stereo.smooth.setTargetValue(_stereo.param->get() * 0.01f);
+            _delay.smooth.setTargetValue(_delay.param->get());
         }
         void reset() noexcept{
             _gain.smooth.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(_gain.param->get()));
             _feedback.smooth.setCurrentAndTargetValue(_feedback.param->get());
-            _delay.reset();
+            _delay.smooth.setCurrentAndTargetValue(_delay.param->get());
+            _pan = {1.0f, 0.0f};
         }
 
         float gain() noexcept{
@@ -175,7 +159,7 @@ namespace delay_plugin
         }
 
         float delay() noexcept{
-            return _delay.advance();
+            return _delay.smooth.getNextValue();
         }
 
         float mix() noexcept{
@@ -185,14 +169,19 @@ namespace delay_plugin
         float feeback(){
             return _feedback.smooth.getNextValue();
         }
+        std::tuple<float,float> pan(){
+            _pan =  getPanningEqualPower(_stereo.smooth.getNextValue());
+            return _pan;
+        }
 
     private:
         SmoothParam<float> _gain{gainParamID};    
         SmoothParam<float> _mix{mixParamID};
         SmoothParam<float> _feedback{feedbackParamID};
-        juce::AudioParameterFloat* _delayParam;
-        ExpParam _delay;
+        SmoothParam<float> _stereo{stereoParamID};
+        SmoothParam<float> _delay{delayParamID};
         seconds_t updatePeriod {0.2};
+        std::tuple<float,float> _pan = {1.0f,0.0f};
     };
 
 
