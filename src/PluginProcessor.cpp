@@ -103,33 +103,19 @@ void DelayPluginProcessor::releaseResources()
 
 bool DelayPluginProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-  #if JucePlugin_IsMidiEffect
-    juce::ignoreUnused (layouts);
-    return true;
-  #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
-        return false;
+    auto stereo = &juce::AudioChannelSet::stereo;
+    auto mono = &juce::AudioChannelSet::mono;
+    auto mainIn = layouts.getMainInputChannelSet();
+    auto mainOut = layouts.getMainOutputChannelSet();
 
-    // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
-    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
-        return false;
-   #endif
-
-    return true;
-  #endif
+    if (mainIn == mono() && mainOut == mono()){ return true;}
+    if (mainIn == stereo() && mainOut == stereo()){return true;}
+    if (mainIn == mono() && mainOut == stereo()){return true;}
+    return false;
 }
 
-void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
-                                              juce::MidiBuffer& midiMessages)
+void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, [[maybe_unused]] juce::MidiBuffer& midiMessages)
 {
-    juce::ignoreUnused (midiMessages);
-
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -139,16 +125,23 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     _parameters.update();
 
-    auto dataL = buffer.getWritePointer(0);
-    auto dataR = buffer.getWritePointer(1);
+    auto mainInput = getBusBuffer(buffer,true,0);
+    auto mainOutput = getBusBuffer(buffer,false,0);
+
+    float const * inputDataL = mainInput.getReadPointer(0);
+    float const * inputDataR = mainInput.getReadPointer(mainInput.getNumChannels() > 1? 1 : 0);
+
+    float* outputDataL = mainOutput.getWritePointer(0);
+    float* outputDataR = mainOutput.getWritePointer(mainInput.getNumChannels() > 1? 1 : 0);
+
     const auto sampleRate = static_cast<float>(getSampleRate());
 
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample){
             auto delayInSamples = (_parameters.delay() / 1000.0f) * sampleRate; 
             _delayLine.setDelay(delayInSamples);  
             
-            auto dryR = dataR[sample];
-            auto dryL = dataL[sample];
+            auto dryR = inputDataL[sample];
+            auto dryL = inputDataR[sample];
             
             auto mono = (dryL + dryR)* .5f;    
 
@@ -166,8 +159,8 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             auto gain = _parameters.gain();
             auto mix = _parameters.mix();
             
-            dataR[sample] = (dryR + wetR * _parameters.mix()) * gain;
-            dataL[sample] = (dryL + wetL * _parameters.mix()) * gain;
+            outputDataL[sample] = (dryR + wetR * _parameters.mix()) * gain;
+            outputDataR[sample] = (dryL + wetL * _parameters.mix()) * gain;
         }
 }
 
