@@ -14,7 +14,7 @@ namespace  delay_plugin
  * @param panning: a value between -1.0 and 1.0. -1.0 fully left panned, 1.0 fully right panned.
  */
 inline std::tuple<float, float> getPanningEqualPower(float panning){
-    auto x = M_PI_4f  * (1.0f + panning);
+    auto x = static_cast<float>(M_PI_4) * (1.0f + panning);
     return {std::cos(x),std::sin(x)};
 }
 
