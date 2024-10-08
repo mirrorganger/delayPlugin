@@ -11,6 +11,8 @@ DelayPluginProcessor::DelayPluginProcessor()
                        ),
     _parameters(_vts)
 {
+    _filterBank[0].setType(juce::dsp::StateVariableTPTFilterType::lowpass);
+    _filterBank[1].setType(juce::dsp::StateVariableTPTFilterType::highpass);
 }
 
 DelayPluginProcessor::~DelayPluginProcessor()
@@ -88,6 +90,11 @@ void DelayPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     juce::ignoreUnused (samplesPerBlock);
     _parameters.prepareToPlay(sampleRate);
     _parameters.reset();
+
+    for(auto& filter : _filterBank){
+        filter.prepare({sampleRate,juce::uint32(samplesPerBlock),2});
+    }
+
     _delayLine.prepare({sampleRate,juce::uint32(samplesPerBlock),2});
     _delayLine.setMaximumDelayInSamples(static_cast<int>(std::ceil(seconds_t(MAX_DELAY_TIME).count() * sampleRate)));
     _delayLine.reset();
@@ -155,6 +162,11 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, [[may
             
             _feedbackR = wetR * _parameters.feeback();
             _feedbackL = wetL * _parameters.feeback();
+
+            for(auto & filter : _filterBank){
+                _feedbackL = filter.processSample(0,_feedbackL);
+                _feedbackR = filter.processSample(1,_feedbackR);
+            }
 
             auto gain = _parameters.gain();
             auto mix = _parameters.mix();

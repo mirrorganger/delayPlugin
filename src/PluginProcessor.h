@@ -54,6 +54,7 @@ private:
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> _delayLine;
     float _feedbackL = 0.0f;
     float _feedbackR = 0.0f;
+    std::array<juce::dsp::StateVariableTPTFilter<float>,2U> _filterBank;    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DelayPluginProcessor)
 };
