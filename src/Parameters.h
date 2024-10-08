@@ -20,6 +20,9 @@ namespace delay_plugin
     static const juce::ParameterID mixParamID {"mix", 1};
     static const juce::ParameterID feedbackParamID {"feedback", 1};
     static const juce::ParameterID stereoParamID {"stereo", 1};
+    static const juce::ParameterID lowCutParamID {"lowcut",1};
+    static const juce::ParameterID highCutParamID {"highcut",1};
+
 
     static constexpr millis_t MIN_DELAY_TIME { 5.0};
     static constexpr millis_t MAX_DELAY_TIME {5000.0};
@@ -73,6 +76,16 @@ namespace delay_plugin
         return juce::String(static_cast<int>(percent)) +  " %";
     }
 
+    static juce::String stringFromHz(float hz, int){
+       if(hz  < 1000.0f){
+        return juce::String(static_cast<int>(hz)) +  " Hz";
+       }
+       if(hz  < 10000.0){
+        return juce::String((hz) / 1000.0,2) +   " KHz";
+       }
+       return juce::String((hz) / 1000.0,1) +   " KHz";
+    }
+
     static juce::String stringFromTime(float ms, int){
         if(ms < 1000.0f){
             return juce::String(ms, 2) + " ms";
@@ -92,6 +105,8 @@ namespace delay_plugin
             _feedback.getFromTree(state);
             _stereo.getFromTree(state);
             _delay.getFromTree(state);
+            _lowCut.getFromTree(state);
+            _highCut.getFromTree(state);
         }
 
         Vts::ParameterLayout createParameterLayout(){
@@ -127,7 +142,19 @@ namespace delay_plugin
                 "stereo",
                 juce::NormalisableRange<float>{-100.0f,100.0f,1.0f},
                 0.0f,
-                juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromPercent))
+                juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromPercent)),
+                std::make_unique<juce::AudioParameterFloat>(
+                lowCutParamID,
+                "lowCut",
+                juce::NormalisableRange<float>{20.0f,20000.0f,1.0f,0.3f},
+                20.0f,
+                juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromHz)),
+                std::make_unique<juce::AudioParameterFloat>(
+                highCutParamID,
+                "highCut",
+                juce::NormalisableRange<float>{20.0f,20000.0f,1.0f,0.3f},
+                20000.0f,
+                juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromHz))
                 );
             return layout;
         }
@@ -138,6 +165,8 @@ namespace delay_plugin
             _mix.smooth.reset(sampleRate, updatePeriod.count());
             _stereo.smooth.reset(sampleRate, updatePeriod.count());
             _delay.smooth.reset(sampleRate,updatePeriod.count());
+            _lowCut.smooth.reset(sampleRate,updatePeriod.count());
+            _highCut.smooth.reset(sampleRate,updatePeriod.count());
         }
 
         void update() noexcept{
@@ -148,6 +177,10 @@ namespace delay_plugin
             _delay.smooth.setTargetValue(_delay.param->get());
         }
         void reset() noexcept{
+            *_lowCut.param = 20.0f;
+            _lowCut.smooth.setCurrentAndTargetValue(_lowCut.param->get());
+            *_highCut.param = 2000.0f;
+            _highCut.smooth.setCurrentAndTargetValue(_highCut.param->get());
             _gain.smooth.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(_gain.param->get()));
             _feedback.smooth.setCurrentAndTargetValue(_feedback.param->get());
             _delay.smooth.setCurrentAndTargetValue(_delay.param->get());
@@ -180,6 +213,8 @@ namespace delay_plugin
         SmoothParam<float> _feedback{feedbackParamID};
         SmoothParam<float> _stereo{stereoParamID};
         SmoothParam<float> _delay{delayParamID};
+        SmoothParam<float> _lowCut{lowCutParamID};
+        SmoothParam<float> _highCut{highCutParamID};
         seconds_t updatePeriod {0.2};
         std::tuple<float,float> _pan = {1.0f,0.0f};
     };
