@@ -55,6 +55,7 @@ private:
     float _feedbackL = 0.0f;
     float _feedbackR = 0.0f;
     std::array<juce::dsp::StateVariableTPTFilter<float>,2U> _filterBank;    
+    std::array<float,2U> _filterCutOffPrev =  {-1.0f,-1.0f};
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DelayPluginProcessor)
 };

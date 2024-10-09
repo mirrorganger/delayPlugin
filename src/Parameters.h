@@ -22,10 +22,30 @@ namespace delay_plugin
     static const juce::ParameterID stereoParamID {"stereo", 1};
     static const juce::ParameterID lowCutParamID {"lowcut",1};
     static const juce::ParameterID highCutParamID {"highcut",1};
-
-
+    static const juce::ParameterID tempoSyncParamID {"tempoSync",1};
+    static const juce::ParameterID delayNoteParamID {"delayNote",1};
     static constexpr millis_t MIN_DELAY_TIME { 5.0};
     static constexpr millis_t MAX_DELAY_TIME {5000.0};
+
+    static const juce::StringArray noteLengths = {
+        "1/32",
+        "1/16 trip",
+        "1/32 dot",
+        "1/16",
+        "1/8 trip",
+        "1/16 dot",
+        "1/8",
+        "1/4 trip",
+        "1/8 dot",
+        "1/4",
+        "1/2 trip",
+        "1/4 dot",
+        "1/2",
+        "1/1 trip",
+        "1/2 dot",
+        "1"
+    };
+
 
 
     using Vts = juce::AudioProcessorValueTreeState;
@@ -107,6 +127,8 @@ namespace delay_plugin
             _delay.getFromTree(state);
             _lowCut.getFromTree(state);
             _highCut.getFromTree(state);
+            _tempoSyncParam = dynamic_cast<juce::AudioParameterBool*>(state.getParameter(tempoSyncParamID.getParamID()));
+            _delayNoteParam = dynamic_cast<juce::AudioParameterChoice*>(state.getParameter(delayNoteParamID.getParamID()));
         }
 
         Vts::ParameterLayout createParameterLayout(){
@@ -154,8 +176,16 @@ namespace delay_plugin
                 "highCut",
                 juce::NormalisableRange<float>{20.0f,20000.0f,1.0f,0.3f},
                 20000.0f,
-                juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromHz))
-                );
+                juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromHz)),
+                std::make_unique<juce::AudioParameterChoice>(
+                delayNoteParamID,
+                "Delay Note",
+                noteLengths,
+                noteLengths.size()),
+                std::make_unique<juce::AudioParameterBool>(
+                tempoSyncParamID,
+                "Tempo Sync",
+                false));
             return layout;
         }
         
@@ -175,6 +205,10 @@ namespace delay_plugin
             _feedback.smooth.setTargetValue(_feedback.param->get() * 0.01f);
             _stereo.smooth.setTargetValue(_stereo.param->get() * 0.01f);
             _delay.smooth.setTargetValue(_delay.param->get());
+            _lowCut.smooth.setTargetValue(_lowCut.param->get());
+            _highCut.smooth.setTargetValue(_highCut.param->get());
+            _delayNote = _delayNoteParam->getIndex();
+            _tempoSync = _tempoSyncParam->get();
         }
         void reset() noexcept{
             *_lowCut.param = 20.0f;
@@ -207,6 +241,22 @@ namespace delay_plugin
             return _pan;
         }
 
+        float lowCut(){
+            return _lowCut.smooth.getNextValue();
+        }   
+
+        float highCut(){
+            return _highCut.smooth.getNextValue();
+        }
+
+        float tempoSync(){
+            return _tempoSync;
+        }
+
+        float delayNote(){
+            return _delayNote;
+        }
+
     private:
         SmoothParam<float> _gain{gainParamID};    
         SmoothParam<float> _mix{mixParamID};
@@ -215,6 +265,10 @@ namespace delay_plugin
         SmoothParam<float> _delay{delayParamID};
         SmoothParam<float> _lowCut{lowCutParamID};
         SmoothParam<float> _highCut{highCutParamID};
+        juce::AudioParameterBool* _tempoSyncParam;
+        bool _tempoSync = false;
+        juce::AudioParameterChoice* _delayNoteParam;
+        float _delayNote = 0.0f;
         seconds_t updatePeriod {0.2};
         std::tuple<float,float> _pan = {1.0f,0.0f};
     };
