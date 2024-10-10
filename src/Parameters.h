@@ -1,19 +1,14 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
-#include <chrono>
 
+#include "Common.h"
 #include "Dsp.h"
 
 using namespace std::chrono_literals;
 
 namespace delay_plugin
 {
-
-    using seconds_t = std::chrono::duration<double>;
-    using millis_t = std::chrono::duration<double, std::milli>;
-    using micros_t = std::chrono::duration<double, std::micro>;
-
 
     static const juce::ParameterID gainParamID { "gain", 1 };
     static const juce::ParameterID delayParamID { "delay", 1 };
@@ -253,7 +248,7 @@ namespace delay_plugin
             return _tempoSync;
         }
 
-        float delayNote(){
+        int delayNote(){
             return _delayNote;
         }
 
@@ -268,7 +263,7 @@ namespace delay_plugin
         juce::AudioParameterBool* _tempoSyncParam;
         bool _tempoSync = false;
         juce::AudioParameterChoice* _delayNoteParam;
-        float _delayNote = 0.0f;
+        int _delayNote = 0.0f;
         seconds_t updatePeriod {0.2};
         std::tuple<float,float> _pan = {1.0f,0.0f};
     };

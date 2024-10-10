@@ -21,7 +21,8 @@ juce_generate_juce_header(${BaseTargetName})
 target_sources(${BaseTargetName} PRIVATE
                 RotaryKnob.cpp
                 PluginProcessor.cpp
-                PluginEditor.cpp)
+                PluginEditor.cpp
+                Tempo.cpp)
 
 target_compile_definitions(${BaseTargetName} PUBLIC
         JUCE_WEB_BROWSER=0

@@ -90,6 +90,9 @@ void DelayPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     juce::ignoreUnused (samplesPerBlock);
     _parameters.prepareToPlay(sampleRate);
     _parameters.reset();
+    _tempo.reset();
+
+
 
     for(auto& filter : _filterBank){
         filter.prepare({sampleRate,juce::uint32(samplesPerBlock),2});
@@ -131,7 +134,12 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, [[may
         buffer.clear (i, 0, buffer.getNumSamples());
 
     _parameters.update();
-
+    _tempo.update(getPlayHead());
+    auto syncedDelay = _tempo.getNoteLength(_parameters.delayNote());
+    if(syncedDelay > MAX_DELAY_TIME){
+        syncedDelay = MAX_DELAY_TIME;
+    }
+    
     auto mainInput = getBusBuffer(buffer,true,0);
     auto mainOutput = getBusBuffer(buffer,false,0);
 
@@ -146,7 +154,8 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, [[may
  
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample){
 
-            auto delayInSamples = (_parameters.delay() / 1000.0f) * sampleRate; 
+            auto delay = _parameters.tempoSync()? syncedDelay.count() : _parameters.delay();
+            auto delayInSamples = (delay / 1000.0f) * sampleRate; 
             _delayLine.setDelay(delayInSamples);  
              
             if(auto highCut = _parameters.highCut();!juce::approximatelyEqual(_filterCutOffPrev[0],highCut)){
