@@ -178,9 +178,6 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, [[may
             _delayLine[0].push(mono * panL + _feedbackR);
             _delayLine[1].push(mono * panR + _feedbackR);
 
-            // _delayLine.pushSample(0, mono * panL + _feedbackR);
-            // _delayLine.pushSample(1, mono * panR + _feedbackL) ;
-
             auto wetL = _delayLine[0](delayInSamples);
             auto wetR = _delayLine[1](delayInSamples);
             
