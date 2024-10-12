@@ -4,6 +4,8 @@
 #include <juce_dsp/juce_dsp.h>
 #include "Parameters.h"
 #include "Tempo.h"
+#include "Delay.hpp"
+
 namespace delay_plugin
 {
 class DelayPluginProcessor final : public juce::AudioProcessor
@@ -51,7 +53,7 @@ private:
     Vts::ParameterLayout createParameterLayout();
     Vts _vts{*this,nullptr, "DealayParameters", createParameterLayout()};
     DelayParameters _parameters;
-    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> _delayLine;
+    std::array<dsp::FractionalDelay,2> _delayLine = {dsp::FractionalDelay{seconds_t(MAX_DELAY_TIME).count() * 48000.0F},dsp::FractionalDelay{seconds_t(MAX_DELAY_TIME).count() * 48000.0F}};
     float _feedbackL = 0.0f;
     float _feedbackR = 0.0f;
     std::array<juce::dsp::StateVariableTPTFilter<float>,2U> _filterBank;    
