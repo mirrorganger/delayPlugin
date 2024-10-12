@@ -11,6 +11,8 @@ DelayPluginProcessor::DelayPluginProcessor()
                        ),
     _parameters(_vts)
 {
+    _filterBank[0].setType(juce::dsp::StateVariableTPTFilterType::lowpass); // low pass filter
+    _filterBank[1].setType(juce::dsp::StateVariableTPTFilterType::highpass); // high pass filter
 }
 
 DelayPluginProcessor::~DelayPluginProcessor()
@@ -88,6 +90,14 @@ void DelayPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     juce::ignoreUnused (samplesPerBlock);
     _parameters.prepareToPlay(sampleRate);
     _parameters.reset();
+    _tempo.reset();
+
+
+
+    for(auto& filter : _filterBank){
+        filter.prepare({sampleRate,juce::uint32(samplesPerBlock),2});
+    }
+
     _delayLine.prepare({sampleRate,juce::uint32(samplesPerBlock),2});
     _delayLine.setMaximumDelayInSamples(static_cast<int>(std::ceil(seconds_t(MAX_DELAY_TIME).count() * sampleRate)));
     _delayLine.reset();
@@ -124,7 +134,12 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, [[may
         buffer.clear (i, 0, buffer.getNumSamples());
 
     _parameters.update();
-
+    _tempo.update(getPlayHead());
+    auto syncedDelay = _tempo.getNoteLength(_parameters.delayNote());
+    if(syncedDelay > MAX_DELAY_TIME){
+        syncedDelay = MAX_DELAY_TIME;
+    }
+    
     auto mainInput = getBusBuffer(buffer,true,0);
     auto mainOutput = getBusBuffer(buffer,false,0);
 
@@ -136,10 +151,22 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, [[may
 
     const auto sampleRate = static_cast<float>(getSampleRate());
 
+ 
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample){
-            auto delayInSamples = (_parameters.delay() / 1000.0f) * sampleRate; 
+
+            auto delay = _parameters.tempoSync()? syncedDelay.count() : _parameters.delay();
+            auto delayInSamples = (delay / 1000.0f) * sampleRate; 
             _delayLine.setDelay(delayInSamples);  
-            
+             
+            if(auto highCut = _parameters.highCut();!juce::approximatelyEqual(_filterCutOffPrev[0],highCut)){
+                _filterCutOffPrev[0] = highCut;
+                _filterBank[0].setCutoffFrequency(highCut); // Low pass filter
+            }
+            if(auto lowCut = _parameters.lowCut();!juce::approximatelyEqual(_filterCutOffPrev[1],lowCut)){
+                _filterCutOffPrev[1] = lowCut;
+                _filterBank[1].setCutoffFrequency(lowCut);  // Hight pass filter
+            }
+
             auto dryR = inputDataL[sample];
             auto dryL = inputDataR[sample];
             
@@ -155,6 +182,11 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, [[may
             
             _feedbackR = wetR * _parameters.feeback();
             _feedbackL = wetL * _parameters.feeback();
+
+            for(auto & filter : _filterBank){
+                _feedbackL = filter.processSample(0,_feedbackL);
+                _feedbackR = filter.processSample(1,_feedbackR);
+            }
 
             auto gain = _parameters.gain();
             auto mix = _parameters.mix();

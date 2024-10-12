@@ -24,10 +24,14 @@ private:
   RotaryKnob _delayKnob{"Delay",_processorRef.getVts(),delayParamID,{70,110}};  
   RotaryKnob _feedbackKnob{"Feedback",_processorRef.getVts(),feedbackParamID,{70,110}};  
   RotaryKnob _stereoKnob{"Stereo",_processorRef.getVts(),stereoParamID,{70,110}};  
+  RotaryKnob _lowCutKnob{"Low Cut",_processorRef.getVts(),lowCutParamID,{70,110}};  
+  RotaryKnob _highCutKnob{"High Cut",_processorRef.getVts(),highCutParamID,{70,110}};  
+  RotaryKnob _delayNoteKnob{"Note",_processorRef.getVts(),delayNoteParamID,{70,110}};
+  juce::TextButton _tempoSyncButton;  
   juce::GroupComponent _delayGroup;
   juce::GroupComponent _feedbackGroup;
   juce::GroupComponent _outputGroup;
-
+  juce::AudioProcessorValueTreeState::ButtonAttachment _tempoSyncAttachment {_processorRef.getVts(),tempoSyncParamID.getParamID(),_tempoSyncButton};
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DelayPluginEditor)    
 
 }; 

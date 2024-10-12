@@ -3,7 +3,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
 #include "Parameters.h"
-
+#include "Tempo.h"
 namespace delay_plugin
 {
 class DelayPluginProcessor final : public juce::AudioProcessor
@@ -54,6 +54,9 @@ private:
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> _delayLine;
     float _feedbackL = 0.0f;
     float _feedbackR = 0.0f;
+    std::array<juce::dsp::StateVariableTPTFilter<float>,2U> _filterBank;    
+    std::array<float,2U> _filterCutOffPrev =  {-1.0f,-1.0f};
+    Tempo _tempo;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DelayPluginProcessor)
 };
