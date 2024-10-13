@@ -98,9 +98,10 @@ void DelayPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
         filter.prepare({sampleRate,juce::uint32(samplesPerBlock),2});
     }
 
-    _delayLine.prepare({sampleRate,juce::uint32(samplesPerBlock),2});
-    _delayLine.setMaximumDelayInSamples(static_cast<int>(std::ceil(seconds_t(MAX_DELAY_TIME).count() * sampleRate)));
-    _delayLine.reset();
+    for(auto & delay : _delayLine){
+        delay.clear();
+    }
+
     _feedbackL = 0.0f;
     _feedbackR = 0.0f;
 }
@@ -156,7 +157,7 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, [[may
 
             auto delay = _parameters.tempoSync()? syncedDelay.count() : _parameters.delay();
             auto delayInSamples = (delay / 1000.0f) * sampleRate; 
-            _delayLine.setDelay(delayInSamples);  
+            // _delayLine.setDelay(delayInSamples);  
              
             if(auto highCut = _parameters.highCut();!juce::approximatelyEqual(_filterCutOffPrev[0],highCut)){
                 _filterCutOffPrev[0] = highCut;
@@ -174,11 +175,11 @@ void DelayPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, [[may
 
             const auto [panL, panR] = _parameters.pan();
 
-            _delayLine.pushSample(0, mono * panL + _feedbackR);
-            _delayLine.pushSample(1, mono * panR + _feedbackL) ;
+            _delayLine[0].push(mono * panL + _feedbackR);
+            _delayLine[1].push(mono * panR + _feedbackR);
 
-            auto wetR = _delayLine.popSample(0);
-            auto wetL = _delayLine.popSample(1);
+            auto wetL = _delayLine[0](delayInSamples);
+            auto wetR = _delayLine[1](delayInSamples);
             
             _feedbackR = wetR * _parameters.feeback();
             _feedbackL = wetL * _parameters.feeback();
