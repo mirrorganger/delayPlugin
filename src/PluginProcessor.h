@@ -47,6 +47,9 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    std::atomic<float>& getMaxL();
+    std::atomic<float>& getMaxR();
+
     Vts& getVts();
 
 private:
@@ -59,6 +62,8 @@ private:
     std::array<juce::dsp::StateVariableTPTFilter<float>,2U> _filterBank;    
     std::array<float,2U> _filterCutOffPrev =  {-1.0f,-1.0f};
     Tempo _tempo;
+    std::atomic<float> _maxL;
+    std::atomic<float> _maxR;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DelayPluginProcessor)
 };

@@ -6,7 +6,7 @@ namespace delay_plugin
   DelayPluginEditor::
   DelayPluginEditor(
       DelayPluginProcessor &p)
-      : AudioProcessorEditor(&p), _processorRef(p)
+      : AudioProcessorEditor(&p), _processorRef(p), _levelMeter(p.getMaxL(),p.getMaxR())
   {
     juce::ignoreUnused(_processorRef);
     
@@ -33,6 +33,7 @@ namespace delay_plugin
     _outputGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
     _outputGroup.addAndMakeVisible(_mixKnob);
     _outputGroup.addAndMakeVisible(_gainKnob);
+    _outputGroup.addAndMakeVisible(_levelMeter);
     addAndMakeVisible(_outputGroup);
 
     setSize(500, 330);
@@ -49,12 +50,12 @@ namespace delay_plugin
   {
     auto bounds = getLocalBounds();
 
-    auto y = 10;
-    auto fullHeight = bounds.getHeight() - 20;
+    auto y = 50;
+    auto fullHeight = bounds.getHeight() - 60;
 
     // Position the groups
     _delayGroup.setBounds(10, y, 110, fullHeight);
-    _outputGroup.setBounds(bounds.getWidth() - 160, y, 110, fullHeight);
+    _outputGroup.setBounds(bounds.getWidth() - 160, y, 150, fullHeight);
     _feedbackGroup.setBounds(_delayGroup.getRight() + 10, y,
                              _outputGroup.getX() - _delayGroup.getRight() - 20,
                              fullHeight);
@@ -71,6 +72,7 @@ namespace delay_plugin
     _gainKnob.setTopLeftPosition(20, 20);
     _mixKnob.setTopLeftPosition(_gainKnob.getX(), _gainKnob.getBottom() + 10);
 
+    _levelMeter.setBounds(_outputGroup.getWidth() - 45, 30, 30, _mixKnob.getBottom() - 30);
 
   }
 

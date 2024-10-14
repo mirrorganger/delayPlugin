@@ -2,6 +2,7 @@
 
 #include "PluginProcessor.h"
 #include "RotaryKnob.h"
+#include "Meter.h"
 
 namespace delay_plugin
 {
@@ -27,6 +28,7 @@ private:
   RotaryKnob _lowCutKnob{"Low Cut",_processorRef.getVts(),lowCutParamID,{70,110}};  
   RotaryKnob _highCutKnob{"High Cut",_processorRef.getVts(),highCutParamID,{70,110}};  
   RotaryKnob _delayNoteKnob{"Note",_processorRef.getVts(),delayNoteParamID,{70,110}};
+  Meter _levelMeter;  
   juce::TextButton _tempoSyncButton;  
   juce::GroupComponent _delayGroup;
   juce::GroupComponent _feedbackGroup;
