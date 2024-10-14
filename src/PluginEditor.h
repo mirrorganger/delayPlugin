@@ -3,6 +3,8 @@
 #include "PluginProcessor.h"
 #include "RotaryKnob.h"
 #include "Meter.h"
+#include "LookAndFeel.h"
+
 
 namespace delay_plugin
 {
@@ -33,6 +35,8 @@ private:
   juce::GroupComponent _delayGroup;
   juce::GroupComponent _feedbackGroup;
   juce::GroupComponent _outputGroup;
+  MainLookAndFeel _lookAndFeel;
+
   juce::AudioProcessorValueTreeState::ButtonAttachment _tempoSyncAttachment {_processorRef.getVts(),tempoSyncParamID.getParamID(),_tempoSyncButton};
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DelayPluginEditor)    
 

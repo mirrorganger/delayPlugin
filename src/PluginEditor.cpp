@@ -35,7 +35,7 @@ namespace delay_plugin
     _outputGroup.addAndMakeVisible(_gainKnob);
     _outputGroup.addAndMakeVisible(_levelMeter);
     addAndMakeVisible(_outputGroup);
-
+    setLookAndFeel(&_lookAndFeel);
     setSize(500, 330);
   }
 
@@ -43,7 +43,7 @@ namespace delay_plugin
 
   void DelayPluginEditor::paint(juce::Graphics &g)
   {
-    g.fillAll(juce::Colours::darkgrey);
+    g.fillAll(juce::Colours::darkgreen);
   }
 
   void DelayPluginEditor::resized()
@@ -62,7 +62,7 @@ namespace delay_plugin
 
     _delayKnob.setTopLeftPosition(20, 20);
     _tempoSyncButton.setTopLeftPosition(20, _delayKnob.getBottom() + 10);
-    _delayNoteKnob.setTopLeftPosition(20, _tempoSyncButton.getBottom());
+    _delayNoteKnob.setTopLeftPosition(20, _tempoSyncButton.getBottom() - 10);
     
     _feedbackKnob.setTopLeftPosition(20, 20);
     _stereoKnob.setTopLeftPosition(_feedbackKnob.getRight()+20,20);
