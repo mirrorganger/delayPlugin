@@ -22,6 +22,7 @@ namespace delay_plugin
             const juce::Colour tickLine{200, 200, 200};
             const juce::Colour tickLabel{80, 80, 80};
             const juce::Colour tooLoud{226, 74, 81};
+            const juce::Colour levelMed{226, 154, 81};
             const juce::Colour levelOk{65, 206, 88};
         }
 

@@ -39,7 +39,9 @@ namespace delay_plugin
     setSize(500, 330);
   }
 
-  DelayPluginEditor::~DelayPluginEditor() {}
+  DelayPluginEditor::~DelayPluginEditor() {
+    setLookAndFeel(nullptr);
+  }
 
   void DelayPluginEditor::paint(juce::Graphics &g)
   {

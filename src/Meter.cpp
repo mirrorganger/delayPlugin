@@ -6,7 +6,7 @@ namespace delay_plugin
     Meter::Meter(std::atomic<float>& left, std::atomic<float>& right)
      : _left(left), _right(right) {
         setOpaque(true);
-        startTimerHz(1);
+        startTimerHz(15);
     };
 
     void Meter::resized() {
@@ -19,7 +19,8 @@ namespace delay_plugin
         auto width = getLocalBounds().getWidth();
 
         g.fillAll(colors::level_meter::background);
-
+        drawLevel(g,_dbLeft,0,7);
+        drawLevel(g,_dbRight,9,7);
         
         for(float db = MAX_DB; db >= MIN_DB; db-=STEP_DB){
             auto tickPosition = static_cast<int>(std::round(juce::jmap(db, MAX_DB, MIN_DB, _maxPos, _minPos)));
@@ -33,6 +34,35 @@ namespace delay_plugin
 
     void Meter::timerCallback()
     {
-        DBG("timerCallback. left: " << _left.load() << " right:" << _right.load());
+        _dbLeft = juce::Decibels::gainToDecibels(_left.load(),CLAMP_DB);
+        _dbRight = juce::Decibels::gainToDecibels(_right.load(),CLAMP_DB);
+        repaint();
      }
+
+    void Meter::drawLevel(juce::Graphics& g, float level, int x, int width){
+        int y = static_cast<int>(std::round(juce::jmap(level, MAX_DB, MIN_DB, _maxPos, _minPos)));
+        const float highLimit = 0.0f;
+        const float midLimit  = -12.0f;
+        const auto yMax = static_cast<int>(std::round(juce::jmap(highLimit, MAX_DB, MIN_DB, _maxPos, _minPos)));
+        const auto yMed = static_cast<int>(std::round(juce::jmap(midLimit, MAX_DB, MIN_DB, _maxPos, _minPos)));
+
+        if(level > highLimit){
+            g.setColour(colors::level_meter::tooLoud);
+            g.fillRect(x,y, width,yMax-y);
+            g.setColour(colors::level_meter::levelMed);
+            g.fillRect(x,yMax, width,yMed-yMax);
+            g.setColour(colors::level_meter::levelOk);
+            g.fillRect(x,yMed, width,getHeight()-yMed);
+        }else if(level > midLimit){
+            g.setColour(colors::level_meter::levelMed);
+            g.fillRect(x,y, width,yMed-y);
+            g.setColour(colors::level_meter::levelOk);
+            g.fillRect(x,yMed, width,getHeight()-yMed);
+        }else if(y < getHeight()){
+            g.setColour(colors::level_meter::levelOk);
+            g.fillRect(x,y, width,getHeight()-y);
+        }
+    } 
+
+
 }
