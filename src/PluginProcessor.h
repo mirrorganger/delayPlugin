@@ -5,6 +5,7 @@
 #include "Parameters.h"
 #include "Tempo.h"
 #include "Delay.hpp"
+#include "Measurement.h"
 
 namespace delay_plugin
 {
@@ -47,8 +48,8 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    std::atomic<float>& getMaxL();
-    std::atomic<float>& getMaxR();
+    Measurement<float>& getMaxL();
+    Measurement<float>& getMaxR();
 
     Vts& getVts();
 
@@ -62,8 +63,8 @@ private:
     std::array<juce::dsp::StateVariableTPTFilter<float>,2U> _filterBank;    
     std::array<float,2U> _filterCutOffPrev =  {-1.0f,-1.0f};
     Tempo _tempo;
-    std::atomic<float> _maxL;
-    std::atomic<float> _maxR;
+    Measurement<float> _maxL;
+    Measurement<float> _maxR;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DelayPluginProcessor)
 };

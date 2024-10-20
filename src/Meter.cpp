@@ -3,7 +3,7 @@
 namespace delay_plugin {
 
 
-    Meter::Meter(std::atomic<float> &left, std::atomic<float> &right)
+    Meter::Meter(Measurement<float> &left, Measurement<float>& right)
         : _left(left, _decay), _right(right, _decay) {
         setOpaque(true);
         startTimerHz(REFRESH_RATE);

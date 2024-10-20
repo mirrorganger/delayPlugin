@@ -104,8 +104,8 @@ namespace delay_plugin
         _feedbackL = 0.0f;
         _feedbackR = 0.0f;
 
-        _maxL.store(0.0f);
-        _maxR.store(0.0f);
+        _maxL.reset();
+        _maxR.reset();
 
     }
 
@@ -218,8 +218,8 @@ namespace delay_plugin
             outputDataL[sample] = outL;
             outputDataR[sample] = outR;
         }
-        _maxL.store(maxL);
-        _maxR.store(maxR);
+        _maxL.updateIfGreater(maxL);
+        _maxR.updateIfGreater(maxR);
     }
 
     //==============================================================================
@@ -259,8 +259,8 @@ namespace delay_plugin
         return _vts;
     }
 
-    std::atomic<float>& DelayPluginProcessor::getMaxL(){ return _maxL;}
-    std::atomic<float>& DelayPluginProcessor::getMaxR(){ return _maxR;}
+    Measurement<float>& DelayPluginProcessor::getMaxL(){ return _maxL;}
+    Measurement<float>& DelayPluginProcessor::getMaxR(){ return _maxR;}
 }
 
 //==============================================================================
