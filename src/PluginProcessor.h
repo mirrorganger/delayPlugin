@@ -1,12 +1,14 @@
 #pragma once
 
-#include "Delay.hpp"
+
 #include "Measurement.h"
 #include "Parameters.h"
 #include "Tempo.h"
+#include "FadeValue.h"
+#include <array>
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
-
+#include "Delay.hpp"
 namespace delay_plugin {
     class DelayPluginProcessor final : public juce::AudioProcessor {
     public:
@@ -55,12 +57,8 @@ namespace delay_plugin {
     private:
         Vts::ParameterLayout createParameterLayout();
         Vts _vts{*this, nullptr, "DealayParameters", createParameterLayout()};
-        void updateDelay(float newDelay);
-        void updateFade();
         DelayParameters _parameters;
-        std::array<dsp::FractionalDelay, 2> _delayLine = {
-                dsp::FractionalDelay{seconds_t(MAX_DELAY_TIME).count() * 48000.0F},
-                dsp::FractionalDelay{seconds_t(MAX_DELAY_TIME).count() * 48000.0F}};
+
         float _feedbackL = 0.0f;
         float _feedbackR = 0.0f;
         std::array<juce::dsp::StateVariableTPTFilter<float>, 2U> _filterBank;
@@ -68,13 +66,11 @@ namespace delay_plugin {
         Tempo _tempo;
         Measurement<float> _maxL;
         Measurement<float> _maxR;
-        float _delayInSamples = 0.0f;
-        float _targetDelay = 0.0f;
-        float _fade = 0.0f;
-        float _fadeTarget = 0.0f;
-        float _coeff = 0.0f;
-        float _wait = 0.0f;
-        float _waitInc = 0.0f;
+        FadeValue<float> _delayInSamples;
+        std::array<dsp::FractionalDelay,2> _delayLine = {
+            dsp::FractionalDelay{seconds_t(MAX_DELAY_TIME).count() * 48000.0F},
+            dsp::FractionalDelay{seconds_t(MAX_DELAY_TIME).count() * 48000.0F}};
+
         //==============================================================================
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DelayPluginProcessor)
     };
