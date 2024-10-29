@@ -183,10 +183,9 @@ namespace delay_plugin {
 
             auto wetL = _delayLine[0](_delayInSamples());
             auto wetR = _delayLine[1](_delayInSamples());
-            // updateFade();
             _delayInSamples.updateFade();
-            wetL *= _delayInSamples();
-            wetR *= _delayInSamples();
+            wetL *= _delayInSamples.getFade();
+            wetR *= _delayInSamples.getFade();
             _feedbackR = wetR * _parameters.feeback();
             _feedbackL = wetL * _parameters.feeback();
 

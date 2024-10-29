@@ -7,9 +7,7 @@ namespace delay_plugin {
     struct FadeValue {
 
         void prepare(float sampleRate) {
-            _coeff =
-                    1.0f -
-                    std::exp(1.0f / (seconds_t(_fadePeriod).count() * sampleRate));
+            _coeff = 1.0f - std::exp( - 1.0f / (seconds_t(_fadePeriod).count() * sampleRate));
             _waitStep = 1.0f / (seconds_t(_waitPeriod).count() * sampleRate);
             _wait = 0.0f;
             _fade = 1.0f;
@@ -43,6 +41,10 @@ namespace delay_plugin {
 
         ValuType operator()(){
             return _value.has_value()? *_value : ValuType{};
+        }
+
+        float getFade(){
+            return _fade;
         }
 
     private:
