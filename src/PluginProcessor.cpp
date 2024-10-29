@@ -157,7 +157,7 @@ namespace delay_plugin {
 
             auto delay =
                     _parameters.tempoSync() ? syncedDelay.count() : _parameters.delay();
-            // updateDelay((delay / 1000.0f) * sampleRate);
+            
             _delayInSamples.update((delay / 1000.0f) * sampleRate);
 
             if (auto highCut = _parameters.highCut();
@@ -240,30 +240,6 @@ namespace delay_plugin {
 
     Measurement<float> &DelayPluginProcessor::getMaxL() { return _maxL; }
     Measurement<float> &DelayPluginProcessor::getMaxR() { return _maxR; }
-
-    // void DelayPluginProcessor::updateDelay(float newDelay) {
-    //     if (newDelay != _targetDelay) {
-    //         _targetDelay = newDelay;
-    //         if (_delayInSamples == 0.0f) {
-    //             _delayInSamples = _targetDelay;
-    //         } else {
-    //             _wait = _waitInc;
-    //             _fadeTarget = 0.0f;
-    //         }
-    //     }
-    // }
-
-    // void DelayPluginProcessor::updateFade() {
-    //     _fade += (_fadeTarget - _fade) * _coeff;
-    //     if (_wait > 0.0f) {
-    //         _wait += _waitInc;
-    //         if (_wait >= 1.0f) {
-    //             _delayInSamples = _targetDelay;
-    //             _wait = 0.0f;
-    //             _fadeTarget = 1.0f;// fade in
-    //         }
-    //     }
-    // }
 
 }// namespace delay_plugin
 
