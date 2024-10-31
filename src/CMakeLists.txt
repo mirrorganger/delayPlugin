@@ -22,7 +22,8 @@ target_sources(${BaseTargetName} PRIVATE
                 RotaryKnob.cpp
                 PluginProcessor.cpp
                 PluginEditor.cpp
-                Tempo.cpp)
+                Tempo.cpp
+                Meter.cpp)
 
 target_compile_definitions(${BaseTargetName} PUBLIC
         JUCE_WEB_BROWSER=0

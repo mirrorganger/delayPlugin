@@ -5,3 +5,4 @@ DelayProject
 .vscode
 cmake-build-*
 resources
+.cache
