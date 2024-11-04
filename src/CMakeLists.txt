@@ -20,6 +20,7 @@ juce_generate_juce_header(${BaseTargetName})
 
 target_sources(${BaseTargetName} PRIVATE
                 RotaryKnob.cpp
+                LookAndFeel.cpp
                 PluginProcessor.cpp
                 PluginEditor.cpp
                 Tempo.cpp
