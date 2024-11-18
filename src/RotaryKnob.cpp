@@ -1,4 +1,5 @@
 #include "RotaryKnob.h"
+#include "LookAndFeel.h"
 
 namespace delay_plugin
 {
@@ -6,7 +7,8 @@ namespace delay_plugin
     RotaryKnob::RotaryKnob(const juce::String &name,
                            juce::AudioProcessorValueTreeState &vts,
                            const juce::ParameterID &paramId,
-                           const Size & size)
+                           const Size & size,
+                           bool drawFromMiddle)
         : _attachment(vts, paramId.getParamID(),_slider) 
 
     {
@@ -20,6 +22,8 @@ namespace delay_plugin
         _label.attachToComponent(&_slider, false);
         addAndMakeVisible(_label);
         setSize(size.width, size.height);
+        setLookAndFeel(RotaryKnobLookAndFeel::get());
+        _slider.getProperties().set("drawFromMiddle",drawFromMiddle);
     }
 
     void RotaryKnob::resized(){

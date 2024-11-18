@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(delayPlugin VERSION 0.1)
 
 include(FetchContent)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 FetchContent_Declare(
     juce 
     GIT_REPOSITORY https://github.com/juce-framework/JUCE.git

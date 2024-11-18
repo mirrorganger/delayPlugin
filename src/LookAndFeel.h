@@ -1,5 +1,6 @@
 #pragma once
 
+#include "juce_graphics/juce_graphics.h"
 #include <juce_gui_basics/juce_gui_basics.h>
 
 
@@ -52,7 +53,9 @@ namespace delay_plugin
           return &instance;
         }
 
-        void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height, float sliderPos, float rotaryAngle, float rotaryEndAngle, juce::Slider& slider) override;
+        void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height, float sliderPos, float rotaryStartAngle, float rotaryEndAngle, juce::Slider& slider) override;
+      private:
+        juce::DropShadow _dropShadow {colors::knob::dropShadow,6,{0,3}};
     };
 
 
@@ -60,8 +63,8 @@ namespace delay_plugin
     {
     public:
         MainLookAndFeel(){
-            // setColour(juce::GroupComponent::textColourId, colors::group::label);
-            // setColour(juce::GroupComponent::outlineColourId, colors::group::outline);
+             setColour(juce::GroupComponent::textColourId, colors::group::label);
+             setColour(juce::GroupComponent::outlineColourId, colors::group::outline);
         }
     private:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainLookAndFeel)

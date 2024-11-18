@@ -15,7 +15,8 @@ struct RotaryKnob : public juce::Component
   RotaryKnob(const juce::String& name, 
              juce::AudioProcessorValueTreeState& vts,
              const juce::ParameterID & paramId,
-             const Size& size);
+             const Size& size,
+             bool drawFromMiddle = false);
   RotaryKnob (const RotaryKnob&) = delete;
   RotaryKnob& operator= (const RotaryKnob&) = delete;
   ~RotaryKnob() override = default;

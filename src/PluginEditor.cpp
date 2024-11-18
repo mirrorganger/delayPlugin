@@ -42,7 +42,7 @@ namespace delay_plugin {
     DelayPluginEditor::~DelayPluginEditor() { setLookAndFeel(nullptr); }
 
     void DelayPluginEditor::paint(juce::Graphics &g) {
-        g.fillAll(juce::Colours::darkgreen);
+        g.fillAll(colors::background);
     }
 
     void DelayPluginEditor::resized() {
