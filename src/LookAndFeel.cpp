@@ -11,7 +11,6 @@ namespace delay_plugin {
     setColour(juce::Slider::rotarySliderFillColourId, colors::knob::trackActive);
     setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
     setColour(juce::CaretComponent::caretColourId, colors::knob::caret);
-    setColour(juce::Slider::textBoxOutlineColourId,juce::Colours::transparentBlack);
   }
 
   void RotaryKnobLookAndFeel::drawRotarySlider(juce::Graphics&g,int x, int y, 

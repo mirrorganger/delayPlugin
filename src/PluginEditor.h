@@ -4,7 +4,7 @@
 #include "Meter.h"
 #include "PluginProcessor.h"
 #include "RotaryKnob.h"
-
+#include "BinaryData.h"
 
 namespace delay_plugin {
 
