@@ -1,4 +1,6 @@
 #include "PluginEditor.h"
+#include "LookAndFeel.h"
+#include "juce_graphics/juce_graphics.h"
 
 namespace delay_plugin {
 
@@ -9,8 +11,8 @@ namespace delay_plugin {
         juce::ignoreUnused(_processorRef);
 
         _delayGroup.setText("Delay");
-        _delayGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
-        _delayGroup.addAndMakeVisible(_delayKnob);
+      _delayGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
+      _delayGroup.addAndMakeVisible(_delayKnob);
         _delayGroup.addAndMakeVisible(_delayNoteKnob);
         _tempoSyncButton.setButtonText("Sync");
         _tempoSyncButton.setClickingTogglesState(true);
@@ -42,7 +44,14 @@ namespace delay_plugin {
     DelayPluginEditor::~DelayPluginEditor() { setLookAndFeel(nullptr); }
 
     void DelayPluginEditor::paint(juce::Graphics &g) {
-        g.fillAll(juce::Colours::darkgreen);
+        g.fillAll(colors::background);
+        auto rect = getLocalBounds().withHeight(40);
+        g.setColour(colors::header); 
+        g.fillRect(rect);
+        auto image = juce::ImageCache::getFromMemory(BinaryData::delay_png, BinaryData::delay_pngSize);
+        int destWidth = image.getWidth() / 2 ;
+        int destHeight = image.getHeight() / 2;
+        g.drawImage(image, getWidth()/2 - destWidth/2,0,destWidth,destHeight,0,0,image.getWidth(),image.getHeight());
     }
 
     void DelayPluginEditor::resized() {

@@ -4,7 +4,7 @@
 #include "Meter.h"
 #include "PluginProcessor.h"
 #include "RotaryKnob.h"
-
+#include "BinaryData.h"
 
 namespace delay_plugin {
 
@@ -20,7 +20,7 @@ namespace delay_plugin {
         // This reference is provided as a quick way for your editor to
         // access the processor object that created it.
         DelayPluginProcessor &_processorRef;
-        RotaryKnob _gainKnob{"Gain", _processorRef.getVts(), gainParamID, {70, 110}};
+        RotaryKnob _gainKnob{"Gain", _processorRef.getVts(), gainParamID, {70, 110},true};
         RotaryKnob _mixKnob{"Mix", _processorRef.getVts(), mixParamID, {70, 110}};
         RotaryKnob _delayKnob{"Delay", _processorRef.getVts(), delayParamID, {70, 110}};
         RotaryKnob _feedbackKnob{"Feedback", _processorRef.getVts(), feedbackParamID, {70, 110}};
